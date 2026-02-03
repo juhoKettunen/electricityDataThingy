@@ -1,30 +1,80 @@
 import urllib.request, json
 import os
 from dotenv import load_dotenv
+from datetime import datetime
 
-def getElectricityConsumption():
+load_dotenv()
+apiKey = os.getenv("API-KEY")
+
+maxHours = 744  # Maximum hours in a month
+
+def parseDate(date_str):
     try:
-        load_dotenv()
+        return datetime.strptime(date_str, "%Y-%m-%d").date()
+    except ValueError:
+        raise ValueError("Invalid date format; expected YYYY-MM-DD")
 
-        url = "https://data.fingrid.fi/api/datasets/363/data?startTime=2026-01-01&endTime=2026-01-02&format=json&oneRowPerTimePeriod=true&pageSize=24&locale=en&sortBy=startTime"
+def validateDates(start, end):
+    s = parseDate(start)
+    e = parseDate(end)
+    today = datetime.now().date()
+    if s > today or e > today:
+        raise ValueError("Dates cannot be in the future")
+    if e < s:
+        raise ValueError("End date must be the same or after start date")
+    return s, e
+
+def daysBetween(d1, d2):
+    d1 = datetime.strptime(d1, "%Y-%m-%d")
+    d2 = datetime.strptime(d2, "%Y-%m-%d")
+
+    delta = (d2 - d1).days
+    if delta < 0:
+        raise ValueError("End date must be the same or after start date")
+    return delta
+
+def getElectricityConsumption(start="2026-01-01", end="2026-01-02"):
+    try:
+        hours = daysBetween(start, end) * 24
+
+        if hours == 0:
+            hours = 24
+        elif hours > maxHours:
+            hours = maxHours
+
+        url = f"https://data.fingrid.fi/api/datasets/363/data?startTime={start}&endTime={end}&format=json&oneRowPerTimePeriod=true&pageSize={hours}&locale=en&sortBy=startTime"
 
         hdr ={
         # Request headers
         'Cache-Control': 'no-cache',
-        'x-api-key': os.getenv('API-KEY'),
+        'x-api-key': apiKey,
         }
 
         req = urllib.request.Request(url, headers=hdr)
 
         req.get_method = lambda: 'GET'
         response = urllib.request.urlopen(req)
-        print(response.getcode())
-        print(response.read())
+
+        data = json.loads(response.read())['data']
+
+        for entry in data:
+            print(f"Time: {entry['startTime']}, Consumption: {entry['Total electricity consumption in Finnish distribution networks']} KWh")
+
     except Exception as e:
-        print(e)
+        print(f"Error: {e}")
 
 def main():
-    getElectricityConsumption()
+    while True:
+        start_date = input("Enter start date (YYYY-MM-DD) or 'exit' to quit: ")
+        if start_date.lower() == 'exit':
+            break
+        end_date = input("Enter end date (YYYY-MM-DD): ")
+        try:
+            validateDates(start_date, end_date)
+        except ValueError as ve:
+            print(f"Invalid input: {ve}")
+            continue
+        getElectricityConsumption(start=start_date, end=end_date)
 
 if __name__ == "__main__":
     main()
