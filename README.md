@@ -8,7 +8,7 @@ All python library requiremnts are in the requiremnts.txt file.
 To run the program you need to clone the repo. Then just call in the folder you cloned it to: python totalElectricityConsumption.py
 
 Example run:
-> python totalElectricityConsumption.py
+python totalElectricityConsumption.py
 Enter start date (YYYY-MM-DD) or 'exit' to quit: 2026-01-01
 Enter end date (YYYY-MM-DD): 2026-01-02
 Day: 2026-01-01 /// Hour: 00 /// Consumption: 8123704.393 KWh
