@@ -35,6 +35,8 @@ def daysBetween(d1, d2):
 
 def getElectricityConsumption(start="2026-01-01", end="2026-01-02"):
     try:
+
+        validateDates(start, end)
         hours = daysBetween(start, end) * 24
 
         if hours == 0:
@@ -72,11 +74,6 @@ def main():
         if start_date.lower() == 'exit':
             break
         end_date = input("Enter end date (YYYY-MM-DD): ")
-        try:
-            validateDates(start_date, end_date)
-        except ValueError as ve:
-            print(f"Invalid input: {ve}")
-            continue
         getElectricityConsumption(start=start_date, end=end_date)
 
 if __name__ == "__main__":
