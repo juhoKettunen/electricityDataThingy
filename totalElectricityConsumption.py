@@ -58,7 +58,10 @@ def getElectricityConsumption(start="2026-01-01", end="2026-01-02"):
         data = json.loads(response.read())['data']
 
         for entry in data:
-            print(f"Time: {entry['startTime']}, Consumption: {entry['Total electricity consumption in Finnish distribution networks']} KWh")
+            day = entry['startTime'].split('T')[0]
+            hour = entry['startTime'].split('T')[1].split(':')[0]
+            consumption = entry['Total electricity consumption in Finnish distribution networks']
+            print(f"Day: {day} /// Hour: {hour} /// Consumption: {consumption} KWh")
 
     except Exception as e:
         print(f"Error: {e}")
