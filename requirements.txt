@@ -1,0 +1,4 @@
+Required python libraries:
+Python Dotenv: 
+install - pip install python-dotenv
+needed for reading api key from .env file
